@@ -23,6 +23,13 @@
                 <notnull>true</notnull>
             </field>
             <field>
+                <name>bank_id</name>
+                <type>integer</type>
+                <notnull>true</notnull>
+                <unsigned>true</unsigned>
+                <length>8</length>
+            </field>
+            <field>
                 <name>type</name>
                 <type>integer</type>
                 <notnull>true</notnull>
@@ -34,6 +41,34 @@
                 <type>float</type>
                 <notnull>true</notnull>
                 <length>8</length>
+            </field>
+            <field>
+                <name>user_id</name>
+                <type>text</type>
+                <length>200</length>
+                <default></default>
+                <notnull>true</notnull>
+            </field>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*personalfinances_banks</name>
+        <declaration>
+            <field>
+                <name>id</name>
+                <type>integer</type>
+                <notnull>true</notnull>
+                <autoincrement>true</autoincrement>
+                <unsigned>true</unsigned>
+                <primary>true</primary>
+                <length>8</length>
+            </field>
+            <field>
+                <name>name</name>
+                <type>text</type>
+                <length>200</length>
+                <default></default>
+                <notnull>true</notnull>
             </field>
             <field>
                 <name>user_id</name>

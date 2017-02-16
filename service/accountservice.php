@@ -6,20 +6,32 @@ use Exception;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 
+use OCP\DB\QueryBuilder\IQueryBuilder;
+use OCP\IDBConnection;
 use OCA\PersonalFinances\Db\Account;
 use OCA\PersonalFinances\Db\AccountMapper;
+use OCA\PersonalFinances\Db\Bank;
+use OCA\PersonalFinances\Db\BankMapper;
 
 
 class AccountService {
 
-    private $mapper;
+    /**
+     * @var IDBConnection
+     */
+    private $connection;
+    private $accountmapper;
+    private $bankmapper;
 
-    public function __construct(AccountMapper $mapper){
-        $this->mapper = $mapper;
+    public function __construct(IDBConnection $connection, AccountMapper $accountmapper, BankMapper $bankmapper) {
+        $this->connection = $connection;
+        $this->accountmapper = $accountmapper;
+        $this->bankmapper = $bankmapper;
     }
 
     public function findAll($userId) {
-        return $this->mapper->findAll($userId);
+        return $this->accountmapper->findAll($userId);
+        //$builder = $this->connection->getQueryBuilder();
     }
 
     private function handleException ($e) {
@@ -33,7 +45,7 @@ class AccountService {
 
     public function find($id, $userId) {
         try {
-            return $this->mapper->find($id, $userId);
+            return $this->accountmapper->find($id, $userId);
 
         // in order to be able to plug in different storage backends like files
         // for instance it is a good idea to turn storage related exceptions
@@ -50,7 +62,7 @@ class AccountService {
         $account->setType($type);
         $account->setInitial($initial);
         $account->setUserId($userId);
-        return $this->mapper->insert($account);
+        return $this->accountmapper->insert($account);
     }
 
     public function update($id, $name, $type, $intial, $userId) {
@@ -59,7 +71,7 @@ class AccountService {
             $account->setName($title);
             $account->setType($type);
             $account->setInitial($initial);
-            return $this->mapper->update($account);
+            return $this->accountmapper->update($account);
         } catch(Exception $e) {
             $this->handleException($e);
         }
@@ -67,8 +79,8 @@ class AccountService {
 
     public function delete($id, $userId) {
         try {
-            $account = $this->mapper->find($id, $userId);
-            $this->mapper->delete($account);
+            $account = $this->accountmapper->find($id, $userId);
+            $this->accountmapper->delete($account);
             return $account;
         } catch(Exception $e) {
             $this->handleException($e);

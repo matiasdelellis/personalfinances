@@ -10,6 +10,7 @@ class Account extends Entity implements JsonSerializable {
     protected $name;
     protected $type;
     protected $initial;
+    protected $bankId;
     protected $userId;
 
     public function jsonSerialize() {
@@ -17,7 +18,8 @@ class Account extends Entity implements JsonSerializable {
             'id' => $this->id,
             'name' => $this->name,
             'type' => $this->type,
-            'initial' => $this->initial
+            'initial' => $this->initial,
+            'bankid' => $this->bankId
         ];
     }
 }
