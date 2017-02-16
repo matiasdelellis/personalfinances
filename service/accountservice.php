@@ -13,7 +13,6 @@ use OCA\PersonalFinances\Db\AccountMapper;
 use OCA\PersonalFinances\Db\Bank;
 use OCA\PersonalFinances\Db\BankMapper;
 
-
 class AccountService {
 
     /**
@@ -30,8 +29,20 @@ class AccountService {
     }
 
     public function findAll($userId) {
-        return $this->accountmapper->findAll($userId);
-        //$builder = $this->connection->getQueryBuilder();
+        $builder = $this->connection->getQueryBuilder();
+        $query = $builder->select(['a.id', 'a.initial', 'a.type'])
+                         ->selectAlias('a.name', 'account_name')
+                         ->selectAlias('b.name', 'bank_name')
+                         ->from('personalfinances_accounts', 'a')
+                         ->innerJoin('a', 'personalfinances_banks', 'b', $builder->expr()->eq('a.bank_id', 'b.id'))
+                         ->where($builder->expr()->eq('a.user_id', $builder->createNamedParameter($userId)))
+                         ->orderBy('bank_name', 'ASC');
+        $result = $query->execute();
+
+        $data = $result->fetchAll();
+        $result->closeCursor();
+
+        return $data;
     }
 
     private function handleException ($e) {

@@ -2,8 +2,8 @@
 	{{#if account}}
 		<div class="emptycontent">
 			<div class="icon-folder"></div>
-			{{ account.name }}
-			{{ account.type }}
+			{{ account.bank_name }}</br>
+			{{ account.account_name }}</br>
 			{{ account.initial }}
 		</div>
 	{{else}}

@@ -18,7 +18,7 @@ Accounts.prototype = {
     load: function (id) {
         var self = this;
         this._accounts.forEach(function (account) {
-            if (account.id === id) {
+            if (account.id == id) {
                 account.active = true;
                 self._activeAccount = account;
             } else {
@@ -34,7 +34,7 @@ Accounts.prototype = {
         var deferred = $.Deferred();
         var id = this._activeAccount.id;
         this._accounts.forEach(function (account, counter) {
-            if (account.id === id) {
+            if (account.id == id) {
                 index = counter;
             }
         });
@@ -91,6 +91,7 @@ Accounts.prototype = {
         }).fail(function () {
             deferred.reject();
         });
+
         return deferred.promise();
     },
     updateActive: function (name, type, initial) {
@@ -148,7 +149,7 @@ View.prototype = {
             var account = {
                 name: translations.newAccount,
                 type: 0,
-                initial: 500.0
+                initial: 22.55
             };
 
             self._accounts.create(account).done(function() {
