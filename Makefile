@@ -9,8 +9,17 @@ package_name=$(app_name)
 
 all: dist
 
+deps:
+	wget http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars-v4.0.5.js
+	wget https://cdn.datatables.net/1.10.13/js/jquery.dataTables.js
+	wget https://cdn.datatables.net/1.10.13/css/jquery.dataTables.css
+	mkdir -p vendor
+	mv handlebars-v4.0.5.js vendor/handlebars.js
+	mv jquery.dataTables.* vendor/
+
 clean:
 	rm -rf $(build_dir)
+	rm -rf vendor/*
 
 dist: clean
 	mkdir -p $(source_dir)

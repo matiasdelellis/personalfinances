@@ -1,5 +1,7 @@
 <?php
-script('personalfinances', 'handlebars');
+vendor_script('personalfinances', 'handlebars');
+vendor_script('personalfinances', 'jquery.dataTables');
+vendor_style('personalfinances', 'jquery.dataTables');
 script('personalfinances', 'script');
 style('personalfinances', 'style');
 ?>

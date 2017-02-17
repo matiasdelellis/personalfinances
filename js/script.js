@@ -121,6 +121,7 @@ View.prototype = {
         var html = template({account: this._accounts.getActive()});
 
         $('#transactions').html(html);
+        $('#transactions_table').DataTable();
 
         // handle saves
         /*var textarea = $('#app-content textarea');
@@ -139,8 +140,27 @@ View.prototype = {
     renderNavigation: function () {
         var source = $('#navigation-tpl').html();
         var template = Handlebars.compile(source);
-        var html = template({accounts: this._accounts.getAll()});
+        var accounts = this._accounts.getAll();
+        var abanks = [], banks = [];
 
+        /* Get Banks names on array */
+        $.each(accounts, function(i, val) {
+            if ($.inArray(val.bank_name, abanks) == -1) {
+                abanks.push(val.bank_name);
+            }
+        });
+        /* Get accounts from banks on array */
+        $.each(abanks, function(i, val) {
+            var obanks = $.grep(accounts, function(oval, index) {
+                return val == oval.bank_name;
+            });
+            banks.push({
+                name: val,
+                accounts: obanks
+            });
+        });
+
+        var html = template({banks: banks});
         $('#app-navigation ul').html(html);
 
         // create a new account
