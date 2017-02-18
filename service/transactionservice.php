@@ -21,6 +21,10 @@ class TransactionService {
         return $this->transactionmapper->findAll($userId);
     }
 
+    public function findAllAccount($account, $userId) {
+        return $this->transactionmapper->findAllAccount($account, $userId);
+    }
+
     private function handleException ($e) {
         if ($e instanceof DoesNotExistException ||
             $e instanceof MultipleObjectsReturnedException) {

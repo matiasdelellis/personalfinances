@@ -41,6 +41,15 @@ class TransactionController extends Controller {
     /**
      * @NoAdminRequired
      *
+     * @param int $account
+     */
+    public function findAllAccount($account) {
+        return $this->transactionService->findAllAccount($account, $this->userId);
+    }
+
+    /**
+     * @NoAdminRequired
+     *
      * @param string $name
      * @param integer $type
      * @param float $initial

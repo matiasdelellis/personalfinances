@@ -21,8 +21,8 @@ class TransactionMapper extends Mapper {
     }
 
     public function findAllAccount($accountId, $userId) {
-        $sql = 'SELECT * FROM *PREFIX*personalfinances_transactions WHERE account = ? user_id = ?';
-        return $this->findEntities($sql, [$accountId, $userId]);
+        $sql = 'SELECT * FROM *PREFIX*personalfinances_transactions WHERE (account = ? OR dst_account = ?) AND user_id = ?';
+        return $this->findEntities($sql, [$accountId, $accountId, $userId]);
     }
 
 }

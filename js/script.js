@@ -125,7 +125,7 @@ View.prototype = {
         if (this._accounts.getActive()) {
             var deferred = $.Deferred();
             var self = this;
-            $.get(OC.generateUrl('/apps/personalfinances/transactions')).done(function (transactions) {
+            $.get(OC.generateUrl('/apps/personalfinances/transactions/'+this._accounts.getActive().id)).done(function (transactions) {
                 $('#transactions_table').DataTable({
                     paging: false,
                     scrollY: 400,
