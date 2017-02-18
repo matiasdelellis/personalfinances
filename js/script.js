@@ -121,7 +121,42 @@ View.prototype = {
         var html = template({account: this._accounts.getActive()});
 
         $('#transactions').html(html);
-        $('#transactions_table').DataTable();
+
+        if (this._accounts.getActive()) {
+            var deferred = $.Deferred();
+            var self = this;
+            $.get(OC.generateUrl('/apps/personalfinances/transactions')).done(function (transactions) {
+                $('#transactions_table').DataTable({
+                    paging: false,
+                    scrollY: 400,
+                    data: transactions,
+                    columns: [
+                        { "data": "date", "title": "Date",
+                          "render": function (data, type, row) {
+                                        var date = new Date(data*1000);
+                                        date = date.toLocaleString("es", {
+                                                                   year    : 'numeric',
+                                                                   month   : '2-digit',
+                                                                   day     : '2-digit',
+                                                                   timeZone: 'UTC'
+                                        });
+                                        return date;
+                                    }
+                        },
+                        { "data": "info", "title": "Info"},
+                        { "data": "amount", "title": "Amount",
+                          "render": function (data, type, row) {
+                                        return '$ ' + parseFloat(data).toFixed(2);
+                                    }
+                        }
+                    ]
+                });
+                deferred.resolve();
+            }).fail(function () {
+                deferred.reject();
+            });
+            deferred.promise();
+        }
 
         // handle saves
         /*var textarea = $('#app-content textarea');

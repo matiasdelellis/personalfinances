@@ -7,7 +7,7 @@
 
  class PageController extends Controller {
 
-     public function __construct($AppName, IRequest $request){
+     public function __construct($AppName, IRequest $request) {
          parent::__construct($AppName, $request);
      }
 

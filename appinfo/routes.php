@@ -2,6 +2,7 @@
 return [
     'resources' => [
         'account' => ['url' => '/accounts'],
+        'transaction' => ['url' => '/transactions'],
         'account_api' => ['url' => '/api/0.1/accounts']
     ],
     'routes' => [

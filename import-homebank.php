@@ -94,6 +94,19 @@ function db_insertTransaction ($db, $date, $amount, $account_id, $dst_account_id
     return $db->lastInsertId();
 }
 
+/*
+ * Helpers
+ */
+function julianDayNumberGetTimestampHelper ($julianDayNumber)
+{
+    $timezone = new DateTimeZone('UTC');
+    $date = DateTime::createFromFormat('Y-m-d H:i:s', '1-1-0 00:00:00', $timezone);
+    $date->add(new DateInterval('P' . $julianDayNumber . 'D'));
+    $date->add(new DateInterval('PT12H'));
+
+    return $date->getTimestamp();
+}
+
 function getKeyArrayHelper ($array, $key)
 {
     $ret = 0;
@@ -148,11 +161,12 @@ foreach($xml->cat as $cat) {
 
 // File transactions.
 foreach($xml->ope as $ope) {
+    $date = julianDayNumberGetTimestampHelper ($ope["date"]);
     $account_id = getKeyArrayHelper($oldAccount, $ope["account"]);
     $dst_account_id = getKeyArrayHelper($oldAccount, $ope["dst_account"]);
     $category_id = getKeyArrayHelper($oldCat, $ope["category"]);
 
-    db_insertTransaction ($db, $ope["date"], $ope["amount"], $account_id, $dst_account_id,
+    db_insertTransaction ($db, $date, $ope["amount"], $account_id, $dst_account_id,
                           $ope["paymode"], $ope["flag"], $category_id,
                           $ope["info"]);
 }
