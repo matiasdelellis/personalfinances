@@ -124,30 +124,54 @@ View.prototype = {
 
         if (this._accounts.getActive()) {
             var deferred = $.Deferred();
+            $.get(OC.generateUrl('/apps/personalfinances/balance/'+this._accounts.getActive().id)).done(function (balance) {
+                $('#total-balance').html("$ " + parseFloat(balance).toFixed(2));
+                deferred.resolve();
+            }).fail(function () {
+                deferred.reject();
+            });
+            deferred.promise();
+        }
+
+        if (this._accounts.getActive()) {
+            var deferred = $.Deferred();
             var self = this;
             $.get(OC.generateUrl('/apps/personalfinances/transactions/'+this._accounts.getActive().id)).done(function (transactions) {
                 $('#transactions_table').DataTable({
                     paging: false,
-                    scrollY: 400,
+                    searching: false,
                     data: transactions,
                     columns: [
                         { "data": "date", "title": "Date",
-                          "render": function (data, type, row) {
-                                        var date = new Date(data*1000);
-                                        date = date.toLocaleString("es", {
-                                                                   year    : 'numeric',
-                                                                   month   : '2-digit',
-                                                                   day     : '2-digit',
-                                                                   timeZone: 'UTC'
-                                        });
-                                        return date;
-                                    }
+                            "render": function (data, type, row) {
+                                if (type === 'display') {
+                                    var date = new Date(data*1000);
+                                    date = date.toLocaleString("es", {
+                                                               year    : 'numeric',
+                                                               month   : '2-digit',
+                                                               day     : '2-digit',
+                                                               timeZone: 'UTC'});
+                                    return date;
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
                         },
                         { "data": "info", "title": "Info"},
                         { "data": "amount", "title": "Amount",
-                          "render": function (data, type, row) {
-                                        return '$ ' + parseFloat(data).toFixed(2);
-                                    }
+                            "render": function (data, type, row) {
+                                if (type === 'display') {
+                                    if (row.dstaccount > 0)
+                                        data *=-1;
+                                    return '$ ' + parseFloat(data).toFixed(2);
+                                }
+                                else {
+                                    if (row.dstaccount > 0)
+                                        data *=-1;
+                                    return data;
+                                }
+                            }
                         }
                     ]
                 });
