@@ -12,6 +12,9 @@ use OCA\PersonalFinances\Db\Account;
 use OCA\PersonalFinances\Db\AccountMapper;
 use OCA\PersonalFinances\Db\Bank;
 use OCA\PersonalFinances\Db\BankMapper;
+use OCA\PersonalFinances\Db\Transaction;
+use OCA\PersonalFinances\Db\TransactionMapper;
+
 
 class AccountService {
 
@@ -21,11 +24,13 @@ class AccountService {
     private $connection;
     private $accountmapper;
     private $bankmapper;
+    private $transactionmapper;
 
-    public function __construct(IDBConnection $connection, AccountMapper $accountmapper, BankMapper $bankmapper) {
+    public function __construct(IDBConnection $connection, AccountMapper $accountmapper, BankMapper $bankmapper, TransactionMapper $transactionmapper) {
         $this->connection = $connection;
         $this->accountmapper = $accountmapper;
         $this->bankmapper = $bankmapper;
+        $this->transactionmapper = $transactionmapper;
     }
 
     public function findAll($userId) {
@@ -98,4 +103,9 @@ class AccountService {
         }
     }
 
+    public function balance ($id, $userId) {
+        $account = $this->accountmapper->find($id, $userId);
+        $intrabalance = $this->transactionmapper->balanceAccount($id, $userId);
+        return $account->getInitial() + $intrabalance;
+    }
 }

@@ -75,4 +75,14 @@ class AccountController extends Controller {
         });
     }
 
+    /**
+     * @NoAdminRequired
+     *
+     * @param int $id
+     */
+    public function balance($id) {
+        return $this->handleNotFound(function () use ($id) {
+            return $this->service->balance($id, $this->userId);
+        });
+    }
 }

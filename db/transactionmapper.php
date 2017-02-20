@@ -25,4 +25,28 @@ class TransactionMapper extends Mapper {
         return $this->findEntities($sql, [$accountId, $accountId, $userId]);
     }
 
+    public function balanceAccount($accountId, $userId) {
+        $sql = 'SELECT SUM(amount) AS balance FROM *PREFIX*personalfinances_transactions WHERE account = ? AND user_id = ?';
+        $sql = $this->db->prepare($sql);
+        $sql->bindParam(1, $accountId, \PDO::PARAM_INT);
+        $sql->bindParam(2, $userId, \PDO::PARAM_STR);
+        $sql->execute();
+        $row = $sql->fetch();
+        $sql->closeCursor();
+
+        $balance = $row['balance'];
+
+        $sql = 'SELECT SUM(amount) AS balance FROM *PREFIX*personalfinances_transactions WHERE dst_account = ? AND user_id = ?';
+        $sql = $this->db->prepare($sql);
+        $sql->bindParam(1, $accountId, \PDO::PARAM_INT);
+        $sql->bindParam(2, $userId, \PDO::PARAM_STR);
+        $sql->execute();
+        $row = $sql->fetch();
+        $sql->closeCursor();
+
+        $balance -= $row['balance'];
+
+        return $balance;
+    }
+
 }

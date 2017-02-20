@@ -159,12 +159,15 @@ foreach($xml->cat as $cat) {
     $oldCat[(string)$xml_id] = $cat_id;
 }
 
-// File transactions.
+// Fill transactions.
 foreach($xml->ope as $ope) {
     $date = julianDayNumberGetTimestampHelper ($ope["date"]);
     $account_id = getKeyArrayHelper($oldAccount, $ope["account"]);
     $dst_account_id = getKeyArrayHelper($oldAccount, $ope["dst_account"]);
     $category_id = getKeyArrayHelper($oldCat, $ope["category"]);
+
+    if ($dst_account_id > 0 && $ope["amount"] > 0)
+        continue; // Just add "expenses" entry when transaction is account to account.
 
     db_insertTransaction ($db, $date, $ope["amount"], $account_id, $dst_account_id,
                           $ope["paymode"], $ope["flag"], $category_id,
