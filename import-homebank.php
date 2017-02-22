@@ -83,15 +83,24 @@ function db_insertCategory ($db, $name, $parent_id = 0)
     return $db->lastInsertId();
 }
 
-function db_insertTransaction ($db, $date, $amount, $account_id, $dst_account_id, $paymode, $flags, $category_id, $info)
+function db_insertTransaction ($db, $date, $amount, $account_id, $dst_account_id, $paymode, $flags, $category_id, $info, $id_kxfer)
 {
     $sql = "INSERT INTO ".db_prefix."personalfinances_transactions ";
-    $sql.= "(date, amount, account, dst_account, paymode, flags, category, info, user_id) VALUES ";
+    $sql.= "(date, amount, account, dst_account, paymode, flags, category, info, kxfer_id, user_id) VALUES ";
     $sql.= "('" . $date . "', '" . $amount . "', '" . $account_id . "', '" . $dst_account_id . "', '";
-    $sql.=  $paymode . "', '" . $flags . "', '" . $category_id . "', '" . $info . "', '". user_id . "')";
+    $sql.=  $paymode . "', '" . $flags . "', '" . $category_id . "', '" . $info . "', '". $id_kxfer . "', '". user_id . "')";
 
     $ret = $db->exec($sql);
     return $db->lastInsertId();
+}
+
+function db_relateTransaction ($db, $transaction_id, $id_kxfer)
+{
+    $sql = "UPDATE ".db_prefix."personalfinances_transactions SET ";
+    $sql.= "kxfer_id = " . $id_kxfer. " WHERE ";
+    $sql.= "id = " . $transaction_id;
+
+    $ret = $db->exec($sql);
 }
 
 /*
@@ -160,16 +169,29 @@ foreach($xml->cat as $cat) {
 }
 
 // Fill transactions.
+$incomeId = [];
+$expenseId = [];
 foreach($xml->ope as $ope) {
     $date = julianDayNumberGetTimestampHelper ($ope["date"]);
     $account_id = getKeyArrayHelper($oldAccount, $ope["account"]);
     $dst_account_id = getKeyArrayHelper($oldAccount, $ope["dst_account"]);
     $category_id = getKeyArrayHelper($oldCat, $ope["category"]);
 
-    if ($dst_account_id > 0 && $ope["amount"] > 0)
-        continue; // Just add "expenses" entry when transaction is account to account.
+    $ope_id = db_insertTransaction ($db, $date, $ope["amount"], $account_id, $dst_account_id,
+                                    $ope["paymode"], $ope["flag"], $category_id,
+                                    $ope["info"], 0);
+    if ($ope["kxfer"]) {
+        if ($ope["amount"] > 0)
+            $incomeId[(string)$ope["kxfer"]] = $ope_id;
+        else
+            $expenseId[(string)$ope["kxfer"]] = $ope_id;
+    }
+}
 
-    db_insertTransaction ($db, $date, $ope["amount"], $account_id, $dst_account_id,
-                          $ope["paymode"], $ope["flag"], $category_id,
-                          $ope["info"]);
+// Relate internal transactions.
+foreach ($incomeId as $oldKxfer => $incomeOpeId) {
+    $expenseOpeId = getKeyArrayHelper($expenseId, $oldKxfer);
+
+    db_relateTransaction ($db, $incomeOpeId, $expenseOpeId);
+    db_relateTransaction ($db, $expenseOpeId, $incomeOpeId);
 }

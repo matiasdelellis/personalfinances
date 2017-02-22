@@ -15,6 +15,7 @@ class Transaction extends Entity implements JsonSerializable {
     protected $flags;
     protected $category;
     protected $info;
+    protected $kxferId;
     protected $userId;
 
     public function jsonSerialize() {
@@ -27,7 +28,8 @@ class Transaction extends Entity implements JsonSerializable {
             'paymode' => $this->paymode,
             'flags' => $this->flags,
             'category' => $this->category,
-            'info' => $this->info
+            'info' => $this->info,
+            'kxferid' => $this->kxferId
         ];
     }
 }

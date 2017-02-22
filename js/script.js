@@ -162,13 +162,9 @@ View.prototype = {
                         { "data": "amount", "title": "Amount",
                             "render": function (data, type, row) {
                                 if (type === 'display') {
-                                    if (row.dstaccount > 0)
-                                        data *=-1;
                                     return '$ ' + parseFloat(data).toFixed(2);
                                 }
                                 else {
-                                    if (row.dstaccount > 0)
-                                        data *=-1;
                                     return data;
                                 }
                             }

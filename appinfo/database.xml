@@ -189,6 +189,13 @@
                 <notnull>true</notnull>
             </field>
             <field>
+                <name>kxfer_id</name>
+                <type>integer</type>
+                <notnull>true</notnull>
+                <unsigned>true</unsigned>
+                <length>8</length>
+            </field>
+            <field>
                 <name>user_id</name>
                 <type>text</type>
                 <length>200</length>
