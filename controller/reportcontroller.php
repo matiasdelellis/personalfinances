@@ -28,4 +28,8 @@ class ReportController extends Controller {
         return new DataResponse($this->service->reportAll($this->userId));
     }
 
+    public function reportSince($timestamp) {
+        return new DataResponse($this->service->reportSince($this->userId, $timestamp));
+    }
+
 }
