@@ -83,6 +83,21 @@ function db_insertCategory ($db, $name, $parent_id = 0)
     return $db->lastInsertId();
 }
 
+function db_getTransactionByDate ($db, $time)
+{
+    $sql = "SELECT id FROM ".db_prefix."personalfinances_transactions WHERE";
+    $sql.= " date=" . $time;
+    $sql.= " AND user_id='".user_id."'";
+
+    $ret = $db->query($sql);
+    if ($ret) {
+        $row =$ret->fetch();
+        return $row['id'];
+    }
+    else
+        return 0;
+}
+
 function db_insertTransaction ($db, $date, $amount, $account_id, $dst_account_id, $paymode, $flags, $category_id, $info, $id_kxfer)
 {
     $sql = "INSERT INTO ".db_prefix."personalfinances_transactions ";
@@ -176,6 +191,9 @@ foreach($xml->ope as $ope) {
     $account_id = getKeyArrayHelper($oldAccount, $ope["account"]);
     $dst_account_id = getKeyArrayHelper($oldAccount, $ope["dst_account"]);
     $category_id = getKeyArrayHelper($oldCat, $ope["category"]);
+
+    while (db_getTransactionByDate ($db, $date) > 0)
+        $date+=60;
 
     $ope_id = db_insertTransaction ($db, $date, $ope["amount"], $account_id, $dst_account_id,
                                     $ope["paymode"], $ope["flag"], $category_id,
