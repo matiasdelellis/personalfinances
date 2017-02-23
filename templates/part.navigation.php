@@ -2,7 +2,7 @@
 <div style="display:none" id="new-account-string"><?php p($l->t('New account')); ?></div>
 
 <script id="navigation-tpl" type="text/x-handlebars-template">
-    <li id="integrated-account"><a href="#"><?php p($l->t('Integrated account')); ?></a></li>
+    <li id="expense-report"><a href="#"><?php p($l->t('Expense report')); ?></a></li>
     {{#each banks}}
         <li class="collapsible open">
             <button class="collapse"></button>

@@ -4,10 +4,9 @@
 		<table id="transactions_table" class="display" cellspacing="0" width="95%">
 		</table>
 	{{else}}
-		<div class="emptycontent">
-			<div class="icon-folder"></div>
-			<?php p($l->t('Nothing here. Take your first transactions.')); ?>
-		</div>
+		<h2>Last 30 day report</h2>
+		<canvas id="reportChart" width="150" height="50"></canvas>
+		<table id="report_table" class="display" cellspacing="0" width="95%">
 	{{/if}}
 </script>
 <div id="transactions"></div>

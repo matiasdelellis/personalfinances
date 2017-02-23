@@ -29,6 +29,12 @@ Accounts.prototype = {
     getActive: function () {
         return this._activeAccount;
     },
+    unsetActive: function () {
+        this._activeAccount = undefined;
+        this._accounts.forEach(function (account) {
+            account.active = false;
+        });
+    },
     removeActive: function () {
         var index;
         var deferred = $.Deferred();
@@ -121,6 +127,170 @@ View.prototype = {
         var html = template({account: this._accounts.getActive()});
 
         $('#transactions').html(html);
+
+        if (!this._accounts.getActive()) {
+            var deferred = $.Deferred();
+            var timestamp = (Date.now() / 1000) - 30*24*60*60;
+            var categories = [];
+            $.get(OC.generateUrl('/apps/personalfinances/report/' + timestamp)).done(function (report) {
+                report.forEach(function (row) {
+                    if (row.cat_parent_name)
+                        var cat_name = row.cat_parent_name + " > " + row.cat_name;
+                    else
+                        var cat_name = row.cat_name;
+
+                    var found = false;
+                    for (var i = 0; i < categories.length; i++) {
+                        if (categories[i].id == row.id) {
+                            categories[i].amount += parseFloat(row.amount);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        categories.push({
+                            name: cat_name,
+                            id: row.id,
+                            amount: parseFloat(row.amount)
+                        });
+                    }
+                });
+
+                categories.sort (function (a, b) {
+                    return a.amount - b.amount;
+                });
+
+                var labelsA = [];
+                var dataA = [];
+                for (var i = 0; i < categories.length; i++) {
+                    if (categories[i].amount < 0)
+                        categories[i].amount*=-1;
+                    else
+                        continue;
+                    labelsA.push(categories[i].name);
+                    dataA.push(categories[i].amount);
+                }
+                var ctx = $("#reportChart");
+                var expensesChart = new Chart(ctx, {
+                    type: 'bar',
+                    options: {
+                        legend: {
+                            display: false
+                        },
+                        scaleShowLabels : false
+                    },
+                    data: {
+                        labels: labelsA,
+                        datasets: [{
+                            //label: "Last 30 days",
+                            data: dataA,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)',
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)',
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)',
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+
+                            ],
+                            borderColor: [
+                                'rgba(255,99,132,1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)',
+                                'rgba(255,99,132,1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)',
+                                'rgba(255,99,132,1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)',
+                                'rgba(255,99,132,1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ]
+                        }]
+                    }
+                });
+
+                 // Fill table.
+                $('#report_table').DataTable({
+                    paging: false,
+                    data: report,
+                    columns: [
+                        { "data": "date", "title": "Date",
+                            "render": function (data, type, row) {
+                                if (type === 'display') {
+                                    var date = new Date(data*1000);
+                                    date = date.toLocaleString("es", {
+                                                               year    : 'numeric',
+                                                               month   : '2-digit',
+                                                               day     : '2-digit',
+                                                               timeZone: 'UTC'});
+                                    return date;
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        { "data": "cat_name", "title": "Category",
+                            "render": function (data, type, row) {
+                                if (row.cat_parent_name)
+                                    var cat_name = row.cat_parent_name + " > " + row.cat_name;
+                                else
+                                    var cat_name = row.cat_name;
+                                return cat_name;
+                            }
+                        },
+                        { "data": "info", "title": "Info"},
+                        { "data": "amount", "title": "Amount",
+                            "render": function (data, type, row) {
+                                if (type === 'display') {
+                                    return '$ ' + parseFloat(data).toFixed(2);
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        }
+                    ]
+                });
+                deferred.resolve();
+            }).fail(function () {
+                deferred.reject();
+            });
+            deferred.promise();
+
+        }
 
         if (this._accounts.getActive()) {
             var deferred = $.Deferred();
@@ -217,6 +387,12 @@ View.prototype = {
 
         var html = template({banks: banks});
         $('#app-navigation ul').html(html);
+
+        // load a account
+        $('#expense-report').click(function () {
+            self._accounts.unsetActive();
+            self.render();
+        });
 
         // create a new account
         var self = this;
