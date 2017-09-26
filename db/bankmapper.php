@@ -1,12 +1,12 @@
 <?php
 namespace OCA\PersonalFinances\Db;
 
-use OCP\IDb;
+use OCP\IDBConnection;
 use OCP\AppFramework\Db\Mapper;
 
 class BankMapper extends Mapper {
 
-    public function __construct(IDb $db) {
+    public function __construct(IDBConnection $db) {
         parent::__construct($db, 'personalfinances_banks', '\OCA\PersonalFinances\Db\Bank');
     }
 
